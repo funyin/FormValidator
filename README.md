@@ -1,7 +1,19 @@
 # FormValidator [![](https://jitpack.io/v/funyin/FormValidator.svg)](https://jitpack.io/#funyin/FormValidator)
 A form validation library for android jetpack compose
 
+## Features
+- Determine Validation Flow.
+    __Flow.Dowm__|__Flow.Up__|__Flow.Splash__
+- Custom Validation
+- Validation Snackbar
+- Validation State Callbacks
+- Library is well documented
+
 ## Preview
+
+
+https://user-images.githubusercontent.com/38915569/149603789-1f47436b-b8f9-44a6-98a6-6ec389a75e7b.mp4
+
 
 
 ## Example
@@ -62,13 +74,6 @@ A form validation library for android jetpack compose
         }
     }
 ```
-
-## Features
-- Determine Validation Flow.
-    __Flow.Dowm__|__Flow.Up__|__Flow.Splash__
-- Custom Validation
-- Validation Snackbar
-- Documentation
 
 ## Getting started
 ### Step 1. Add the JitPack repository to your build file
