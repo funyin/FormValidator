@@ -1,4 +1,4 @@
-# FormValidator [![](https://jitpack.io/v/funyin/FormValidator.svg)](https://jitpack.io/#funyin/FormValidator)
+# FormValidator [![](https://jitpack.io/v/funyin/FormValidator.svg)](https://jitpack.io/#funyin/FormValidator) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-FormValidator-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/8353)
 A form validation library for android jetpack compose
 
 ## Features
