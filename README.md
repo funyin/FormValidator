@@ -3,7 +3,7 @@ A form validation library for android jetpack compose
 
 ## Features
 - Determine Validation Flow.
-    __Flow.Dowm__|__Flow.Up__|__Flow.Splash__
+    __Flow.Down__|__Flow.Up__|__Flow.Splash__
 - Custom Validation
 - Validation Snackbar
 - Validation State Callbacks
