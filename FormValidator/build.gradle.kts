@@ -94,7 +94,7 @@ android {
 }
 
 group = "com.github.funyin"
-version = "1.0.2"
+version = "1.0.3"
 
 //publishing {
 //    publications {
