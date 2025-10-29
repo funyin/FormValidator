@@ -93,16 +93,19 @@ android {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("release") {
-            groupId = "com.github.funyin"
-            artifactId = "formvalidator"
-            version = "1.0.2"
+group = "com.github.funyin"
+version = "1.0.2"
 
+//publishing {
+//    publications {
+//        create<MavenPublication>("release") {
+//            groupId = "com.github.funyin"
+//            artifactId = "formvalidator"
+//            version = "1.0.2"
+//
 //            afterEvaluate {
 //                from(components["release"])
 //            }
-        }
-    }
-}
+//        }
+//    }
+//}
