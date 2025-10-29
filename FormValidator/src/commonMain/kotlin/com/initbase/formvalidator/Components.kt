@@ -7,7 +7,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -91,7 +91,7 @@ data class SnackBarProperties @OptIn(
     val messageStyle: TextStyle? = null,
     val backgroundColor: Color? = null,
     val shape: Shape = RoundedCornerShape(8.dp),
-    val visibleDuration: Duration = Duration.milliseconds(3000),
+    val visibleDuration: Duration = 3000.milliseconds,
     val enterTransition: EnterTransition = fadeIn() + expandIn(),
     val exitTransition: ExitTransition = shrinkOut() + fadeOut()
 )

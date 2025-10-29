@@ -4,10 +4,8 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.MutableLiveData
 import com.initbase.formvalidator.FormValidator.Flow.*
 import com.initbase.formvalidator.FormValidator.Type.*
-import java.util.regex.Pattern
 
 /**
  * Used to reference the validator in nested components.
@@ -25,7 +23,7 @@ typealias customValidationResponse = Pair<Boolean, String?>
 class FormValidator(val fields: List<validationField> = emptyList(), val flow: Flow = Down) {
     var onValidate: (Boolean) -> Unit = {}
     var errorMessage by mutableStateOf<String?>(null)
-    val valid = MutableLiveData<Boolean>()
+    val valid = mutableStateOf(false)
 
     /**
      * Describes the direction and type of validation in the form
@@ -112,7 +110,7 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
          * In the case os [Number]
          *  - value must be equal to the [Number] value of template
          *
-         * In the case of [Object] (Custom class)
+         * In the case of [java.lang.Object] (Custom class)
          *  - value must be equal to [template]
          *
          * returns false for other cases
@@ -160,8 +158,8 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
     ) {
         var errorMessage: String? = null
             private set
-        private val EMAIL_ADDRESS_PATTERN: Pattern =
-            Pattern.compile("[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+")
+        private val EMAIL_ADDRESS_PATTERN: Regex =
+            Regex("[a-zA-Z0-9+._%\\-]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+")
 
         fun valid(): Boolean {
             val valid: Boolean
@@ -177,23 +175,27 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
                                 defaultErrorMessage = "$name is required"
                                 value.isNotBlank()
                             }
+
                             is MustBeMoreThan -> {
                                 val length = type.template.toString().length
                                 defaultErrorMessage =
                                     "$name must be longer than $length characters"
                                 value.length > length
                             }
+
                             is MustBeLessThan -> {
                                 val length = type.template.toString().length
                                 defaultErrorMessage =
                                     "$name must be shorter than $length characters"
                                 value.length < length
                             }
+
                             is MustBeInRange -> {
                                 defaultErrorMessage =
                                     "$name must be in range ${type.min} - ${type.max}"
                                 false
                             }
+
                             is MustBeEqualTo -> {
                                 val template = type.template
                                 when (template) {
@@ -201,43 +203,51 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
                                         defaultErrorMessage = "$name must match to $template"
                                         value == template
                                     }
+
                                     is Number -> {
                                         val length = template.toString().length
                                         defaultErrorMessage = "$name must be $length characters"
                                         value.length == length
                                     }
+
                                     else -> {
                                         defaultErrorMessage = "$name is not valid"
                                         false
                                     }
                                 }
                             }
+
                             Email -> {
                                 defaultErrorMessage = if (value.isEmpty())
                                     "Enter a valid email"
                                 else
                                     "$value is not a valid email"
-                                EMAIL_ADDRESS_PATTERN.matcher(value).matches()
+                                EMAIL_ADDRESS_PATTERN.matches(value)
                             }
+
                             is Custom -> {
                                 val response = type.valid.invoke(value)
                                 defaultErrorMessage = response.second
                                 response.first
                             }
+
                             Optional -> true
                         }
                     }
+
                     is Number -> {
                         when (type) {
                             Required -> {
                                 defaultErrorMessage = "$name is required"
                                 false
                             }
+
                             is MustBeMoreThan -> {
                                 val template = (type.template.toString()).toFloatOrNull() ?: 0f
                                 defaultErrorMessage = "$name must be greater than $template"
                                 value.toFloat() > template
                             }
+
                             is MustBeLessThan -> {
                                 val template = type.template
                                 defaultErrorMessage = "$name must be less than $template"
@@ -246,23 +256,28 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
                                 } else
                                     false
                             }
+
                             is MustBeInRange -> {
                                 defaultErrorMessage =
                                     "$name must be in range ${type.min} - ${type.max}"
                                 val mValue = value.toFloat()
                                 mValue >= type.min.toFloat() && mValue <= type.max.toFloat()
                             }
+
                             is MustBeEqualTo -> {
                                 val template = (type.template.toString()).toFloatOrNull() ?: 0f
                                 defaultErrorMessage = "$name must be equal to $template"
                                 value == template
                             }
+
                             Email -> {
                                 defaultErrorMessage = "$name is not valid"
                                 false
                             }
+
                             Optional ->
                                 true
+
                             is Custom -> {
                                 val response = type.valid.invoke(value)
                                 defaultErrorMessage = response.second
@@ -277,28 +292,34 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
                                 defaultErrorMessage = "$name is required"
                                 value != null
                             }
+
                             Email -> {
                                 defaultErrorMessage = "$name is not valid"
                                 false
                             }
+
                             is MustBeEqualTo -> {
                                 defaultErrorMessage = "$name does not match template"
                                 value == type.template
                             }
+
                             is MustBeInRange -> {
                                 defaultErrorMessage =
                                     "$name must be in range ${type.min} - ${type.max}"
                                 false
                             }
+
                             is MustBeLessThan -> {
                                 defaultErrorMessage = "$name must be less than ${type.template}"
                                 false
                             }
+
                             is MustBeMoreThan -> {
                                 defaultErrorMessage =
                                     "$name must be greater than ${type.template}"
                                 false
                             }
+
                             Optional -> true
                             is Custom -> {
                                 val response = type.valid.invoke(value)
@@ -336,11 +357,13 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
                     !it.valid()
                 }
             }
+
             Up -> {
                 fields.lastOrNull {
                     !it.valid()
                 }
             }
+
             Splash -> {
                 val results = mutableListOf<Boolean>()
                 fields.forEach {
@@ -358,7 +381,7 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
             valid = false
         }
         onValidate.invoke(valid)
-        this.valid.postValue(valid)
+        this.valid.value = (valid)
         return valid
     }
 }
