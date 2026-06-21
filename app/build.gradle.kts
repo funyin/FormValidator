@@ -81,7 +81,7 @@ dependencies {
     // FormValidator - Use local project for testing
 //    implementation(project(":FormValidator"))
     // OR use JitPack version for external testing
-    // implementation("com.github.funyin:FormValidator:1.0.0")
+    implementation("com.funyinkash:FormValidator:1.0.5")
 //     implementation("com.github.funyin:FormValidator:-SNAPSHOT")
-    implementation(project(":FormValidator"))
+//    implementation(project(":FormValidator"))
 }

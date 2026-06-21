@@ -4,6 +4,8 @@ kotlin = "2.0.21"
 compose = "1.7.1"
 compose-plugin = "1.7.1"
 compose-bom = "2024.10.01"
+dokka = "2.0.0"
+nmcp = "0.0.9"
 
 [libraries]
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
@@ -15,3 +17,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+nmcp = { id = "com.gradleup.nmcp", version.ref = "nmcp" }

@@ -10,6 +10,12 @@ plugins {
 
     // Compose
     alias(libs.plugins.compose.multiplatform) apply false
+
+    // Docs
+    alias(libs.plugins.dokka) apply false
+
+    // Publishing
+    alias(libs.plugins.nmcp) apply false
 }
 
 tasks.register("clean", Delete::class) {
