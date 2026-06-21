@@ -32,7 +32,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
 
       - name: Generate Dokka HTML
-        run: ./gradlew :FormValidator:dokkaHtml
+        run: ./gradlew :FormValidator:dokkaGeneratePublicationHtml --stacktrace
+
+      - name: Verify docs output
+        run: |
+          if [ ! -d "FormValidator/build/dokka/html" ]; then
+            echo "Expected FormValidator/build/dokka/html not found. Searching..."
+            find FormValidator/build -name "index.html" 2>/dev/null || true
+            exit 1
+          fi
+          echo "Docs ready at FormValidator/build/dokka/html"
+          ls FormValidator/build/dokka/html
 
       - uses: actions/configure-pages@v4
 
