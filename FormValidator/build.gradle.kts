@@ -148,13 +148,15 @@ nmcp {
     }
 }
 
-signing {
-    val keyFile = rootProject.file(localProperties.getProperty("signing.secretKeyFile") ?: "")
-    useInMemoryPgpKeys(
-        keyFile.readText(),
-        localProperties.getProperty("signing.password").orEmpty(),
-    )
-    sign(publishing.publications)
+val signingKeyPath = localProperties.getProperty("signing.secretKeyFile")
+if (!signingKeyPath.isNullOrBlank()) {
+    signing {
+        useInMemoryPgpKeys(
+            rootProject.file(signingKeyPath).readText(),
+            localProperties.getProperty("signing.password").orEmpty(),
+        )
+        sign(publishing.publications)
+    }
 }
 
 // KMP creates one publish task per target, and each reads the shared .module metadata
