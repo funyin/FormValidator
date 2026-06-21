@@ -21,14 +21,54 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
+/**
+ * Wraps a form field value together with its validation error and change-tracking state.
+ *
+ * @property value The current field value.
+ * @property initial The value at the time of construction, used to compute [modified].
+ * @property error The current validation error message, or null when the field is valid.
+ * @property modified True when [value] differs from [initial].
+ */
+data class ErrorSafeValue<T>(
+    val value: T,
+    val initial: T = value,
+    val error: String? = null,
+) {
+    val modified: Boolean
+        get() = initial != value
+}
+
+/**
+ * Creates a [MutableState] holding an [ErrorSafeValue] for [value].
+ *
+ * Intended to be used with [remember] inside a composable:
+ * ```kotlin
+ * var firstName by remember { errorSafe(member?.firstName ?: "") }
+ * ```
+ * Wire the field into a [FormValidator.ValidationField] and update via [ErrorSafeValue.copy]:
+ * ```kotlin
+ * ValidationField(value = firstName.value, name = "First Name", type = FormValidator.Type.Required) {
+ *     firstName = firstName.copy(error = it)
+ * }
+ * ```
+ */
+fun <T> errorSafe(value: T): MutableState<ErrorSafeValue<T>> = mutableStateOf(ErrorSafeValue(value = value))
+
 @Composable
 fun Form(
     modifier: Modifier = Modifier,
     validator: FormValidator = FormValidator(),
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit = {}
 ) {
     CompositionLocalProvider(LocalFormValidator provides validator) {
-        Column(content = content, modifier = modifier)
+        Column(
+            content = content,
+            modifier = modifier,
+            verticalArrangement = verticalArrangement,
+            horizontalAlignment = horizontalAlignment
+        )
     }
 }
 
@@ -53,12 +93,15 @@ fun Form(
 ) {
     var showError by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    validator.onValidate = {
-        if (!it) {
-            scope.launch {
-                showError = true
-                delay(snackBarProperties.visibleDuration)
-                showError = false
+    val currentSnackBarProperties by rememberUpdatedState(snackBarProperties)
+    SideEffect {
+        validator.onValidate = { valid ->
+            if (!valid) {
+                scope.launch {
+                    showError = true
+                    delay(currentSnackBarProperties.visibleDuration)
+                    showError = false
+                }
             }
         }
     }
@@ -83,7 +126,7 @@ data class SnackBarProperties @OptIn(
     ExperimentalTime::class,
     ExperimentalAnimationApi::class
 ) constructor(
-    var message: String? = null,
+    val message: String? = null,
     val title: String = "Validation Error",
     val modifier: Modifier = Modifier.fillMaxWidth(),
     val margin: PaddingValues = PaddingValues(16.dp),

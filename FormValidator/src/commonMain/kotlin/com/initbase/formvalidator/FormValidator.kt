@@ -1,6 +1,6 @@
 package com.initbase.formvalidator
 
-import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +11,7 @@ import com.initbase.formvalidator.FormValidator.Type.*
  * Used to reference the validator in nested components.
  * ```LocalFormValidator.current```
  * */
-val LocalFormValidator = compositionLocalOf { FormValidator() }
+val LocalFormValidator = staticCompositionLocalOf { FormValidator() }
 typealias validationField = FormValidator.ValidationField<*>
 typealias customValidationResponse = Pair<Boolean, String?>
 
@@ -158,8 +158,11 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
     ) {
         var errorMessage: String? = null
             private set
-        private val EMAIL_ADDRESS_PATTERN: Regex =
-            Regex("[a-zA-Z0-9+._%\\-]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+")
+
+        companion object {
+            private val EMAIL_ADDRESS_PATTERN =
+                Regex("[a-zA-Z0-9+._%\\-]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+")
+        }
 
         fun valid(): Boolean {
             val valid: Boolean
@@ -239,7 +242,7 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
                         when (type) {
                             Required -> {
                                 defaultErrorMessage = "$name is required"
-                                false
+                                true
                             }
 
                             is MustBeMoreThan -> {
@@ -267,7 +270,7 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
                             is MustBeEqualTo -> {
                                 val template = (type.template.toString()).toFloatOrNull() ?: 0f
                                 defaultErrorMessage = "$name must be equal to $template"
-                                value == template
+                                value.toFloat() == template
                             }
 
                             Email -> {
@@ -329,8 +332,7 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
                         }
                     }
                 }
-            if (errorMessage == null)
-                errorMessage = defaultErrorMessage
+            errorMessage = defaultErrorMessage
             onError.invoke(
                 if (valid)
                     null
@@ -365,12 +367,9 @@ class FormValidator(val fields: List<validationField> = emptyList(), val flow: F
             }
 
             Splash -> {
-                val results = mutableListOf<Boolean>()
-                fields.forEach {
-                    results.add(it.valid())
-                }
+                val results = fields.map { it.valid() }
                 valid = results.all { it }
-                fields.firstOrNull()
+                null
             }
         }
         invalidField?.let {

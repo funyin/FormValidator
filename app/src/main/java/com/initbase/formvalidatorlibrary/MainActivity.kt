@@ -21,6 +21,7 @@ import com.initbase.formvalidator.Form
 import com.initbase.formvalidator.FormValidator
 import com.initbase.formvalidator.FormValidator.ValidationField
 import com.initbase.formvalidator.SnackBarProperties
+import com.initbase.formvalidator.errorSafe
 import com.initbase.formvalidatorlibrary.components.AppButton
 import com.initbase.formvalidatorlibrary.components.AppTextField
 import com.initbase.formvalidatorlibrary.ui.theme.FormValidatorLibraryTheme
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    var formTypes = listOf("Regular Form", "Snackbar Form")
+    var formTypes = listOf("Regular Form", "Snackbar Form", "ErrorSafe Form")
 
     @ExperimentalMaterialApi
     @Preview
@@ -59,14 +60,15 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 activeForm = index
                             }
-                            if (index == 0)
+                            if (index != formTypes.lastIndex)
                                 Spacer(modifier = Modifier.width(8.dp))
                         }
                     }
-                    if (activeForm == 0)
-                        RegularForm()
-                    else
-                        SnackBarForm()
+                    when (activeForm) {
+                        0 -> RegularForm()
+                        1 -> SnackBarForm()
+                        else -> ErrorSafeForm()
+                    }
                 }
             }
         }
@@ -357,6 +359,144 @@ class MainActivity : ComponentActivity() {
                         .padding(6.dp)
                         .align(Alignment.CenterHorizontally)
                 )
+        }
+    }
+
+    @ExperimentalMaterialApi
+    @Composable
+    private fun ErrorSafeForm() {
+        var formIsValid by remember { mutableStateOf(false) }
+        var name by remember { errorSafe("") }
+        var age by remember { errorSafe("") }
+        var email by remember { errorSafe("") }
+        var activeFlow by remember { mutableStateOf(FormValidator.Flow.Down) }
+
+        val validator = FormValidator(
+            flow = activeFlow,
+            fields = buildList {
+                add(ValidationField(value = name.value, name = "Name", type = FormValidator.Type.Required) {
+                    name = name.copy(error = it)
+                })
+                add(ValidationField(
+                    value = age.value.toIntOrNull(),
+                    name = "Age",
+                    type = FormValidator.Type.Custom { value ->
+                        (value != null && value % 2 == 0) to "Age must be divisible by two"
+                    }
+                ) {
+                    age = age.copy(error = it)
+                })
+                add(ValidationField(value = email.value, name = "Email", type = FormValidator.Type.Email) {
+                    email = email.copy(error = it)
+                })
+            }
+        )
+
+        LaunchedEffect(name.value, age.value, email.value) {
+            formIsValid = validator.validate()
+        }
+
+        Form(
+            validator = validator,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state = rememberScrollState())
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Flow",
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 8.dp),
+                style = MaterialTheme.typography.subtitle1
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                (0..2).forEachIndexed { index, _ ->
+                    val active: Boolean
+                    val text = when (index) {
+                        0 -> { active = activeFlow == FormValidator.Flow.Down; "Down" }
+                        1 -> { active = activeFlow == FormValidator.Flow.Up; "Up" }
+                        else -> { active = activeFlow == FormValidator.Flow.Splash; "Splash" }
+                    }
+                    Surface(
+                        onClick = {
+                            activeFlow = when (index) {
+                                0 -> FormValidator.Flow.Down
+                                1 -> FormValidator.Flow.Up
+                                else -> FormValidator.Flow.Splash
+                            }
+                        },
+                        color = if (active) MaterialTheme.colors.primary else Color.LightGray,
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Text(
+                            text = text,
+                            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                        )
+                    }
+                    if (index != 2) {
+                        Divider(
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                                .width(16.dp)
+                                .rotate(90f)
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            AppTextField(
+                label = "Name",
+                value = name.value,
+                placeholder = "Enter name",
+                onValueChanged = { name = name.copy(value = it) },
+                errorMessage = name.error
+            )
+            FormVerticalSpace()
+            AppTextField(
+                label = "Age",
+                value = age.value,
+                placeholder = "Enter age",
+                onValueChanged = { age = age.copy(value = it) },
+                errorMessage = age.error,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+            FormVerticalSpace()
+            AppTextField(
+                label = "Email",
+                value = email.value,
+                placeholder = "Enter email",
+                onValueChanged = { email = email.copy(value = it) },
+                errorMessage = email.error,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            val isDirty = name.modified || age.modified || email.modified
+            if (isDirty)
+                Text(
+                    text = "Form has unsaved changes",
+                    color = MaterialTheme.colors.primary,
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(bottom = 8.dp)
+                )
+            Spacer(modifier = Modifier.height(24.dp))
+            Card(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                shape = RoundedCornerShape(6.dp),
+                backgroundColor = if (formIsValid) Color.Green else MaterialTheme.colors.error,
+                elevation = 0.dp
+            ) {
+                Text(
+                    text = if (formIsValid) "Form is valid" else "Form is not valid",
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
         }
     }
 
