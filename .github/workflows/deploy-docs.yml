@@ -79,6 +79,7 @@ jobs:
         run: |
           VERSION="${{ github.event.inputs.version || github.ref_name }}"
           VERSION="${VERSION#v}"
+          git restore mkdocs.yml
           git fetch origin gh-pages
           git checkout gh-pages
           git reset --hard origin/gh-pages
