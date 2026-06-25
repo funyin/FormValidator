@@ -106,8 +106,8 @@ fun Form(
         }
     }
     CompositionLocalProvider(LocalFormValidator provides validator) {
-        Box(contentAlignment = Alignment.BottomCenter) {
-            Column(content = content, modifier = modifier)
+        Box(modifier = modifier, contentAlignment = Alignment.BottomCenter) {
+            Column(content = content)
             AnimatedVisibility(
                 visible = showError,
                 enter = snackBarProperties.enterTransition,
