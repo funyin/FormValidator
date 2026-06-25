@@ -24,3 +24,8 @@ local.properties
 .kotlin/
 secret-key.ascii
 secring.gpg
+
+### Docs ###
+venv
+.cache
+site/

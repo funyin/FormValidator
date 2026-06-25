@@ -1,0 +1,90 @@
+name: deploy-docs
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g. 1.0.6)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Generate KDoc
+        run: ./gradlew :FormValidator:dokkaGeneratePublicationHtml
+
+      - name: Stash KDoc output
+        run: cp -r FormValidator/build/dokka/html /tmp/kdoc-output
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        with:
+          key: zensical-${{ env.cache_id }}-${{ hashFiles('requirements.txt') }}
+          path: .cache
+          restore-keys: |
+            zensical-
+
+      - run: pip install -r requirements.txt
+
+      - name: Deploy MkDocs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION="${VERSION#v}"
+          sed -i "s|KDOC_VERSION|$VERSION|g" mkdocs.yml
+          git fetch origin gh-pages
+          mike deploy --push --update-aliases "$VERSION" latest
+          mike set-default --push latest
+
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION="${VERSION#v}"
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --generate-notes \
+            --verify-tag || echo "Release already exists, skipping"
+
+      - name: Deploy versioned KDoc to gh-pages
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION="${VERSION#v}"
+          git fetch origin gh-pages
+          git checkout gh-pages
+          git reset --hard origin/gh-pages
+          rm -rf "kdoc/$VERSION"
+          mkdir -p "kdoc/$VERSION"
+          cp -r /tmp/kdoc-output/. "kdoc/$VERSION/"
+          git add "kdoc/$VERSION"
+          git diff --cached --quiet || git commit -m "deploy KDoc $VERSION"
+          git push origin gh-pages

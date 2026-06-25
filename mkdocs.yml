@@ -1,0 +1,60 @@
+site_name: FormValidator
+site_url: 'https://funyin.github.io/FormValidator/'
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  palette:
+    scheme: slate
+    primary: deep purple
+    accent: deep purple
+  features:
+    - navigation.prune
+    - navigation.indexes
+    - navigation.path
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.action.edit
+    - content.code.copy
+    - navigation.footer
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+plugins:
+  - search
+  - social:
+      enabled: !ENV [ENABLE_SOCIAL_CARDS, false]
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Quick Start: quick_start.md
+  - Validation Types: validation_types.md
+  - ErrorSafe Pattern: error_safe.md
+  - How It Works: how_it_works.md
+  - Examples: examples/index.md
+  - KDoc: https://funyin.github.io/FormValidator/kdoc/KDOC_VERSION/
+  - Roadmap: roadmap.md
+  - Community:
+    - community/index.md
+    - Contributing: community/contributing.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/funyin/FormValidator
+  version:
+    provider: mike
+    default: latest
+
+docs_dir: mkdocs-docs
+edit_uri: edit/master/mkdocs-docs/
+repo_url: https://github.com/funyin/FormValidator
+copyright: Copyright &copy; 2024 <a href="https://github.com/funyin">Funyinoluwa Kashimawo</a>
