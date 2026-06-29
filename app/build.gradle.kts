@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.support.kotlinCompilerOptions
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -36,9 +38,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//    }
 
     buildFeatures {
         compose = true
@@ -81,7 +83,7 @@ dependencies {
     // FormValidator - Use local project for testing
 //    implementation(project(":FormValidator"))
     // OR use JitPack version for external testing
-    implementation("com.funyinkash:FormValidator:1.0.5")
+    implementation(libs.formvalidator)
 //     implementation("com.github.funyin:FormValidator:-SNAPSHOT")
 //    implementation(project(":FormValidator"))
 }

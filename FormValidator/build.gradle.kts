@@ -35,11 +35,11 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material)
-            implementation(compose.ui)
-            implementation(compose.animation)
+            implementation(libs.runtime)
+            implementation(libs.foundation)
+            implementation(libs.material)
+            implementation(libs.ui)
+            implementation(libs.animation)
         }
 
         commonTest.dependencies {
@@ -47,12 +47,12 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(compose.uiTooling)
+            implementation(libs.ui.tooling)
         }
 
         val desktopMain by getting {
             dependencies {
-                implementation(compose.desktop.common)
+                implementation("org.jetbrains.compose.desktop:desktop:1.10.0")
             }
         }
     }
@@ -89,7 +89,7 @@ android {
 }
 
 group = "com.funyinkash"
-version = "1.0.6"
+version = "1.0.7"
 
 publishing {
     val javadocJar by tasks.registering(Jar::class) {

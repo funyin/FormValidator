@@ -1,14 +1,21 @@
 [versions]
-agp = "8.5.0"
-kotlin = "2.0.21"
-compose = "1.7.1"
-compose-plugin = "1.7.1"
+agp = "8.9.1"
+formvalidator = "1.0.6"
+kotlin = "2.3.0"
+compose = "1.10.0"
 compose-bom = "2024.10.01"
 dokka = "2.0.0"
 nmcp = "0.0.9"
 
 [libraries]
+animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+formvalidator = { module = "com.funyinkash:FormValidator", version.ref = "formvalidator" }
+material = { module = "org.jetbrains.compose.material:material", version.ref = "compose" }
+foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
+runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
+ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose" }
+ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -16,6 +23,6 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 nmcp = { id = "com.gradleup.nmcp", version.ref = "nmcp" }
